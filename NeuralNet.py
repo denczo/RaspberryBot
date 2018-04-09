@@ -25,6 +25,9 @@ class neuralNetwork:
 
         inputs = numpy.array(input_list, ndmin=2).T
         targets =  numpy.array(target_list, ndmin=2).T
+        #print(self.weightsHidden)
+        #print("______________")
+        #print(inputs)
         hidden_inputs = numpy.dot(self.weightsHidden,inputs)
         hidden_outputs = self.activation_function(hidden_inputs)
         final_inputs = numpy.dot(self.weightsOutput.T,hidden_outputs)
@@ -53,58 +56,134 @@ class neuralNetwork:
         final_outputs = self.activation_function(final_inputs)
         return final_outputs
 
+    def convertNumbers(self, matrix):
+        #print(matrix)
+        array = matrix.getA1();
+        array.astype(float)
+        floatArray = numpy.zeros(len(array), dtype=float)
+        #print(array)
+        for i in range(len(array)):
+            if(array[i] == 0.0):
+                array[i] = 0.1
+                floatArray[i] = 0.1
+            elif(array[i] == 1.0):
+                #print("JO")
+                array[i] = 0.99
+                floatArray[i] = 0.99
+                #print(floatArray[i])
+            else:
+                print("FAIL")
+        #return numpy.array(array,ndmin=2)
+        print(floatArray)
+        print("______________")
+        return floatArray
 
 if __name__ == "__main__":
-    n = neuralNetwork(3,3,7,0.3)
-
-    #n = neuralNetwork(25,15,10,0.3)
+    n = neuralNetwork(25,15,10,0.01)
     #root = tk.Tk()
     master = Tk()
     w = Canvas(master, width=250, height=200)
     w.pack()
 
-    #print(numpy.array([1,1,1],ndmin=2).T)
+    #print(numpy.array([1,1,1],ndmin=2))
+    zero = numpy.matrix([[0, 0, 1, 0, 0],
+                        [0, 1, 0, 1, 0],
+                        [0, 1, 0, 1, 0],
+                        [0, 1, 0, 1, 0],
+                        [0, 0, 1, 0, 0]])
 
-    #R G B
+    one = numpy.matrix([ [0, 1, 1, 0, 0],
+                         [0, 0, 1, 0, 0],
+                         [0, 0, 1, 0, 0],
+                         [0, 0, 1, 0, 0],
+                         [0, 1, 1, 1, 0]])
 
-    #R G B C Y M W
-    """
-    for i in range(1000):
-               # R G B
-        n.train([0.1,0.1,0.99],[0.1,0.1,0.99])
-        n.train([0.1,0.99,0.1],[0.1,0.99,0.1])
-        n.train([0.1,0.99,0.99],[0.1,0.99,0.99])
-        n.train([0.99,0.1,0.1],[0.99,0.1,0.1])
-        n.train([0.99,0.1,0.99],[0.99,0.1,0.99])
-        n.train([0.99,0.99,0.1],[0.99,0.99,0.1])
-        n.train([0.99,0.99,0.99],[0.99,0.99,0.99])
-    """
+    two = numpy.matrix([[0, 1, 1, 1, 0],
+                        [0, 0, 0, 1, 0],
+                        [0, 0, 0, 1, 0],
+                        [0, 0, 1, 0, 0],
+                        [0, 1, 1, 1, 0]])
+
+    three = numpy.matrix([[0, 1, 1, 1, 0],
+                          [0, 0, 0, 1, 0],
+                          [0, 0, 1, 0, 0],
+                          [0, 0, 0, 1, 0],
+                          [0, 1, 1, 1, 0]])
+
+    four = numpy.matrix([ [0, 1, 0, 1, 0],
+                          [0, 1, 0, 1, 0],
+                          [0, 1, 1, 1, 0],
+                          [0, 0, 0, 1, 0],
+                          [0, 0, 0, 1, 0]])
+
+    five = numpy.matrix([ [0, 1, 1, 1, 0],
+                          [0, 1, 0, 1, 0],
+                          [0, 1, 1, 0, 0],
+                          [0, 0, 0, 1, 0],
+                          [0, 1, 1, 1, 0]])
+
+    six = numpy.matrix([ [0, 1, 1, 1, 0],
+                         [0, 1, 0, 0, 0],
+                         [0, 1, 1, 1, 0],
+                         [0, 1, 0, 1, 0],
+                         [0, 1, 1, 1, 0]])
+
+    seven = numpy.matrix([[0, 1, 1, 1, 0],
+                          [0, 0, 0, 1, 0],
+                          [0, 0, 0, 1, 0],
+                          [0, 0, 0, 1, 0],
+                          [0, 0, 0, 1, 0]])
+
+    eight = numpy.matrix([[0, 1, 1, 1, 0],
+                          [0, 1, 0, 1, 0],
+                          [0, 0, 1, 0, 0],
+                          [0, 1, 0, 1, 0],
+                          [0, 1, 1, 1, 0]])
+
+    nine = numpy.matrix( [[0, 1, 1, 1, 0],
+                          [0, 1, 0, 1, 0],
+                          [0, 1, 1, 1, 0],
+                          [0, 0, 0, 1, 0],
+                          [0, 1, 1, 1, 0]])
 
     #print(numpy.dot(numpy.array([1,2,3], ndmin=2).T,numpy.array([1,2,3,4,5,6], ndmin=2)))
     #img = Image.new('1', (50,50))
 
-
+    #print(n.convertNumbers(zero))
     #img.show()
+    zero = n.convertNumbers(zero)
+    one = n.convertNumbers(one)
+    two = n.convertNumbers(two)
+    three = n.convertNumbers(three)
+    four = n.convertNumbers(four)
+    five = n.convertNumbers(five)
+    six = n.convertNumbers(six)
+    seven = n.convertNumbers(seven)
+    eight = n.convertNumbers(eight)
+    nine = n.convertNumbers(nine)
+
     for i in range(5000):
-        # R G B
-        n.train([0.1, 0.1, 0.99], [0.1, 0.1, 0.99, 0.1, 0.1, 0.1, 0.1])
-        n.train([0.1, 0.99, 0.1], [0.1, 0.99, 0.1, 0.1, 0.1, 0.1, 0.1])
-        n.train([0.1, 0.99, 0.99], [0.1, 0.99, 0.99, 0.1, 0.1, 0.1, 0.1])
-        n.train([0.99, 0.1, 0.1], [0.99, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1])
-        n.train([0.99, 0.1, 0.99], [0.99, 0.1, 0.99, 0.1, 0.1, 0.1, 0.1])
-        n.train([0.99, 0.99, 0.1], [0.99, 0.99, 0.1, 0.1, 0.1, 0.1, 0.1])
-        n.train([0.99, 0.99, 0.99], [0.99, 0.99, 0.99, 0.1, 0.1, 0.1, 0.1])
+        n.train(zero, [0.99, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1])
+        n.train(one,  [0.1, 0.99, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1])
+        n.train(two,  [0.1, 0.1, 0.99, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1])
+        n.train(three,[0.1, 0.1, 0.1, 0.99, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1])
+        n.train(four, [0.1, 0.1, 0.1, 0.1, 0.99, 0.1, 0.1, 0.1, 0.1, 0.1])
+        n.train(five, [0.1, 0.1, 0.1, 0.1, 0.1, 0.99, 0.1, 0.1, 0.1, 0.1])
+        n.train(six,  [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.99, 0.1, 0.1, 0.1])
+        n.train(seven,[0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.99, 0.1, 0.1])
+        n.train(eight,[0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.99, 0.1])
+        n.train(nine, [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.99])
 
     #print(n.query([[1,1,1]]))
     #print(n.query([[0,1,0]]))
     #print(n.query([[1,0,0]]))
-    print(n.query([[0,0,1]]))
-
+    #print(n.query([[0,0,1]]))
+    print(n.query(four))
     #root = Tk()
     size = 10
     gap = 5
     margin = 10
-
+    """
     for i in range(5):
         x1 = i*(gap+size)+margin
         x2 = x1+size
@@ -115,7 +194,7 @@ if __name__ == "__main__":
             #print(x1,y1,x2,y2)
             #x1 y1 x2 y2
             w.create_rectangle(x1,y1,x2,y2, fill="white", outline="")
+    """
+    #w.pack()
 
-    w.pack()
-
-    mainloop()
+    #mainloop()
