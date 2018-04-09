@@ -2,6 +2,8 @@ import numpy
 import scipy.special
 from PIL import Image
 import random
+from tkinter import *
+#import Tkinter
 
 #https://stackoverflow.com/questions/32105954/how-can-i-write-a-binary-array-as-an-image-in-python
 
@@ -55,6 +57,12 @@ class neuralNetwork:
 if __name__ == "__main__":
     n = neuralNetwork(3,3,7,0.3)
 
+    #n = neuralNetwork(25,15,10,0.3)
+    #root = tk.Tk()
+    master = Tk()
+    w = Canvas(master, width=250, height=200)
+    w.pack()
+
     #print(numpy.array([1,1,1],ndmin=2).T)
 
     #R G B
@@ -73,9 +81,10 @@ if __name__ == "__main__":
     """
 
     #print(numpy.dot(numpy.array([1,2,3], ndmin=2).T,numpy.array([1,2,3,4,5,6], ndmin=2)))
-    img = Image.new('1', (50,50))
+    #img = Image.new('1', (50,50))
 
 
+    #img.show()
     for i in range(5000):
         # R G B
         n.train([0.1, 0.1, 0.99], [0.1, 0.1, 0.99, 0.1, 0.1, 0.1, 0.1])
@@ -90,3 +99,23 @@ if __name__ == "__main__":
     #print(n.query([[0,1,0]]))
     #print(n.query([[1,0,0]]))
     print(n.query([[0,0,1]]))
+
+    #root = Tk()
+    size = 10
+    gap = 5
+    margin = 10
+
+    for i in range(5):
+        x1 = i*(gap+size)+margin
+        x2 = x1+size
+        for j in range(5):
+
+            y1 = j*(gap+size)+margin
+            y2 = y1+size
+            #print(x1,y1,x2,y2)
+            #x1 y1 x2 y2
+            w.create_rectangle(x1,y1,x2,y2, fill="white", outline="")
+
+    w.pack()
+
+    mainloop()
