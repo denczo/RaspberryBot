@@ -3,7 +3,6 @@ import scipy.special
 from PIL import Image
 import random
 from tkinter import *
-#import Tkinter
 
 #https://stackoverflow.com/questions/32105954/how-can-i-write-a-binary-array-as-an-image-in-python
 
@@ -25,9 +24,6 @@ class neuralNetwork:
 
         inputs = numpy.array(input_list, ndmin=2).T
         targets =  numpy.array(target_list, ndmin=2).T
-        #print(self.weightsHidden)
-        #print("______________")
-        #print(inputs)
         hidden_inputs = numpy.dot(self.weightsHidden,inputs)
         hidden_outputs = self.activation_function(hidden_inputs)
         final_inputs = numpy.dot(self.weightsOutput.T,hidden_outputs)
@@ -35,13 +31,6 @@ class neuralNetwork:
         output_errors = targets - final_outputs
         hidden_errors = numpy.dot(self.weightsOutput, output_errors)
 
-       # #print((output_errors*final_outputs*(1.0 - final_outputs)).T)
-      #  print(hidden_outputs)
-     #   print(numpy.transpose((hidden_outputs)))
-        #print("_________")
-        #print(numpy.dot((output_errors*final_outputs*(1.0 - final_outputs)),hidden_outputs.T ))
-        #print(numpy.dot(hidden_outputs,(output_errors*final_outputs*(1.0 - final_outputs)).T ).T)
-        #print("_________")
         self.weightsOutput += self.learningRate * numpy.dot((output_errors*final_outputs*(1.0 - final_outputs)), hidden_outputs.T).T
         self.weightsHidden += self.learningRate * numpy.dot(hidden_errors*hidden_outputs*(1.0 - hidden_outputs),numpy.transpose(inputs))
 
@@ -49,43 +38,29 @@ class neuralNetwork:
         inputs = numpy.array(inputs_list, ndmin=2).T
         hidden_inputs = numpy.dot(self.weightsHidden, inputs)
         hidden_outputs = self.activation_function(hidden_inputs)
-        #print(self.weightsOutput)
-        #print(hidden_outputs)
         final_inputs = numpy.dot(self.weightsOutput.T,hidden_outputs)
-        #print(final_inputs)
         final_outputs = self.activation_function(final_inputs)
         return final_outputs
 
     def convertNumbers(self, matrix):
-        #print(matrix)
         array = matrix.getA1();
         array.astype(float)
         floatArray = numpy.zeros(len(array), dtype=float)
-        #print(array)
         for i in range(len(array)):
             if(array[i] == 0.0):
                 array[i] = 0.1
                 floatArray[i] = 0.1
             elif(array[i] == 1.0):
-                #print("JO")
                 array[i] = 0.99
                 floatArray[i] = 0.99
-                #print(floatArray[i])
-            else:
-                print("FAIL")
-        #return numpy.array(array,ndmin=2)
-        print(floatArray)
-        print("______________")
         return floatArray
 
 if __name__ == "__main__":
     n = neuralNetwork(25,15,10,0.01)
-    #root = tk.Tk()
     master = Tk()
     w = Canvas(master, width=250, height=200)
-    w.pack()
+    t = Text(master, height= 1, width= 30)
 
-    #print(numpy.array([1,1,1],ndmin=2))
     zero = numpy.matrix([[0, 0, 1, 0, 0],
                         [0, 1, 0, 1, 0],
                         [0, 1, 0, 1, 0],
@@ -146,11 +121,13 @@ if __name__ == "__main__":
                           [0, 0, 0, 1, 0],
                           [0, 1, 1, 1, 0]])
 
-    #print(numpy.dot(numpy.array([1,2,3], ndmin=2).T,numpy.array([1,2,3,4,5,6], ndmin=2)))
-    #img = Image.new('1', (50,50))
+    #test number, play with it
+    someNumber = numpy.matrix( [[0, 1, 1, 1, 0],
+                                [0, 0, 0, 1, 0],
+                                [0, 0, 1, 1, 0],
+                                [0, 0, 0, 1, 0],
+                                [0, 0, 0, 1, 0]])
 
-    #print(n.convertNumbers(zero))
-    #img.show()
     zero = n.convertNumbers(zero)
     one = n.convertNumbers(one)
     two = n.convertNumbers(two)
@@ -162,7 +139,9 @@ if __name__ == "__main__":
     eight = n.convertNumbers(eight)
     nine = n.convertNumbers(nine)
 
-    for i in range(5000):
+    #training
+    print("training Net ... \n")
+    for i in range(7000):
         n.train(zero, [0.99, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1])
         n.train(one,  [0.1, 0.99, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1])
         n.train(two,  [0.1, 0.1, 0.99, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1])
@@ -174,16 +153,11 @@ if __name__ == "__main__":
         n.train(eight,[0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.99, 0.1])
         n.train(nine, [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.99])
 
-    #print(n.query([[1,1,1]]))
-    #print(n.query([[0,1,0]]))
-    #print(n.query([[1,0,0]]))
-    #print(n.query([[0,0,1]]))
-    print(n.query(four))
-    #root = Tk()
+    numberVisual = someNumber
     size = 10
     gap = 5
     margin = 10
-    """
+
     for i in range(5):
         x1 = i*(gap+size)+margin
         x2 = x1+size
@@ -193,8 +167,18 @@ if __name__ == "__main__":
             y2 = y1+size
             #print(x1,y1,x2,y2)
             #x1 y1 x2 y2
-            w.create_rectangle(x1,y1,x2,y2, fill="white", outline="")
-    """
-    #w.pack()
+            if(numberVisual.item((j,i)) == 0):
+                w.create_rectangle(x1,y1,x2,y2, fill="white", outline="")
+            else:
+                w.create_rectangle(x1, y1, x2, y2, fill="black", outline="")
+    print("Number visual: \n",numberVisual,"\n")
 
-    #mainloop()
+    someNumber = n.convertNumbers(someNumber)
+    result = n.query(someNumber)
+    print("Result: \n",result)
+
+    t.insert(END, "recognised Number: ")
+    t.insert(END, result.argmax(axis=0))
+    t.pack()
+    w.pack()
+    mainloop()
