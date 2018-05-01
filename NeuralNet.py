@@ -56,7 +56,7 @@ class neuralNetwork:
         return floatArray
 
 if __name__ == "__main__":
-    n = neuralNetwork(25,15,10,0.01)
+    n = neuralNetwork(25,15,10,0.1)
     master = Tk()
     w = Canvas(master, width=250, height=200)
     t = Text(master, height= 1, width= 30)
@@ -124,9 +124,9 @@ if __name__ == "__main__":
     #test number, play with it
     someNumber = numpy.matrix( [[0, 1, 1, 1, 0],
                                 [0, 0, 0, 1, 0],
-                                [0, 0, 1, 1, 0],
                                 [0, 0, 0, 1, 0],
-                                [0, 0, 0, 1, 0]])
+                                [0, 0, 0, 1, 0],
+                                [0, 1, 1, 1, 0]])
 
     zero = n.convertNumbers(zero)
     one = n.convertNumbers(one)
