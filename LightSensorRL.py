@@ -75,7 +75,8 @@ def vertical(sensor, direction,max):
             value = sensor[i]
             sensor[i] = borderCheck(value,max)
 
-def horizontal(sensor, direction,max):
+def horizontal(sensor,direction,max):
+    print(direction)
     global currentOrientation
     #compare x values
     if sensor[1] == sensor[0] == sensor[2]:
@@ -102,15 +103,28 @@ def horizontal(sensor, direction,max):
 
 def orientation(sensor,height,orientation):
 
-    #print(orientation)
     if orientation == Orientation.left:
-        moveLeft(sensor,height)
-    elif orientation == Orientation.right:
+        vertical(sensor,Directions.leftTurn,height)
         moveRight(sensor,height)
+    elif orientation == Orientation.right:
+        vertical(sensor, Directions.rightTurn, height)
+        moveLeft(sensor,height)
     elif orientation == Orientation.top:
+        horizontal(sensor,Directions.forward,height)
         moveUp(sensor,height)
     elif orientation == Orientation.bottom:
+        horizontal(sensor,Directions.forward,height)
         moveDown(sensor,height)
+
+def stupidLineFollower(sensor,height,values):
+
+    #print(sensor,height,values)
+    if values[0] == 0 and values[1] == 0 and values[2] == 1:
+        orientation(sensor,height,Orientation.left)
+    elif values[0] == 1 and values[1] == 0 and values[2] == 0:
+        orientation(sensor, height, Orientation.right)
+    else:
+        orientation(sensor, height, Orientation.bottom)
 
 if __name__ == "__main__":
     master = Tk()
@@ -126,27 +140,12 @@ if __name__ == "__main__":
     for x in range(width):
         for y in range(height):
             if (bw_im.getpixel((x, y)) < 128):
-                values[x+x*y] = 1
+                values[width*x+y] = 1
             else:
-                values[x+x*y] = 0
-    """
-    for x in range(width):
-        x1 = x * (gap + size) + margin
-        x2 = x1 + size
+                values[width*x+y] = 0
 
-        for y in range(height):
-            y1 = y * (gap + size) + margin
-            y2 = y1 + size
-
-            if (bw_im.getpixel((x, y)) < 128):
-                w.create_rectangle(x1, y1, x2, y2, fill="black", outline="white")
-            else:
-                w.create_rectangle(x1, y1, x2, y2, fill="white", outline="white")
-            # print(bw_im.getpixel((x, y)))
-    """
     while(1):
-    #for Ors in Orientation:
-
+        w.delete("all")
         size = 10
         gap = 2
         margin = 10
@@ -159,14 +158,12 @@ if __name__ == "__main__":
                 y1 = y * (gap + size) + margin
                 y2 = y1 + size
 
-                if (values[x+x*y] == 1):
+                if (values[width*x+y] == 1):
                     w.create_rectangle(x1, y1, x2, y2, fill="black", outline="white")
                 else:
                     w.create_rectangle(x1, y1, x2, y2, fill="white", outline="white")
-                # print(bw_im.getpixel((x, y)))
 
-        moveRight(sensor,height)
-        #orientation(sensor,height,Ors)
+        #orientation(sensor,height,Orientation.bottom)
         for x in range(3):
             x1 = sensor[x] * (gap + size) + margin
             x2 = x1 + size
@@ -174,10 +171,10 @@ if __name__ == "__main__":
             y2 = y1 + size
             #print("current",sensor[2*x+1],sensor[x*2])
             w.create_rectangle(x1, y1, x2, y2, fill="", outline="red")
-
+        #print(sensor)
+        stupidLineFollower(sensor,height,[values[width*sensor[0]+sensor[3]], values[width*sensor[1]+sensor[4]], values[width*sensor[2]+sensor[5]]])
         #vertical(sensor,Directions.leftTurn,height)
         w.pack()
-        #mainloop()
         master.update_idletasks()
         master.update()
-        #time.sleep(0.1)
+        time.sleep(0.5)
