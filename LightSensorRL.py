@@ -31,22 +31,27 @@ def borderCheck(value,max):
     else:
         return value
 
-def moveRight(sensor,max):
+
+def moveRight(sensor,max,direction):
+    vertical(sensor,direction,max)
     for i in range(3):
         value = sensor[i]
         sensor[i] = borderCheck(value+1,max)
 
-def moveLeft(sensor,max):
+def moveLeft(sensor,max,direction):
+    vertical(sensor, direction, max)
     for i in range(3):
         value = sensor[i]
         sensor[i] = borderCheck(value - 1, max)
 
-def moveDown(sensor,max):
+def moveDown(sensor,max,direction):
+    horizontal(sensor,direction,max)
     for i in range(3):
         value = sensor[i+3]
         sensor[i+3] = borderCheck(value + 1, max)
 
-def moveUp(sensor,max):
+def moveUp(sensor,max,direction):
+    horizontal(sensor, direction, max)
     for i in range(3):
         value = sensor[i+3]
         sensor[i+3] = borderCheck(value - 1, max)
@@ -55,14 +60,14 @@ def vertical(sensor, direction,max):
     global currentOrientation
     #compare y values
     if sensor[4] == sensor[3] == sensor[5]:
-        if direction.leftTurn:
+        if direction == Directions.leftTurn:
             if sensor[0] < sensor[2]:
                 sensor[3] -= 1
                 sensor[5] += 1
             else:
                 sensor[3] += 1
                 sensor[5] -= 1
-        elif direction.rightTurn:
+        elif direction == Directions.rightTurn:
             if sensor[0] < sensor[2]:
                 sensor[3] += 1
                 sensor[5] -= 1
@@ -76,18 +81,17 @@ def vertical(sensor, direction,max):
             sensor[i] = borderCheck(value,max)
 
 def horizontal(sensor,direction,max):
-    print(direction)
     global currentOrientation
     #compare x values
     if sensor[1] == sensor[0] == sensor[2]:
-        if direction.leftTurn:
+        if direction == Directions.leftTurn:
             if sensor[3] < sensor[5]:
                 sensor[0] -= 1
                 sensor[2] += 1
             else:
                 sensor[0] += 1
                 sensor[2] -= 1
-        elif direction.rightTurn:
+        elif direction == Directions.rightTurn:
             if sensor[3] < sensor[5]:
                 sensor[0] += 1
                 sensor[2] -= 1
@@ -100,31 +104,81 @@ def horizontal(sensor,direction,max):
             value = sensor[i]
             sensor[i] = borderCheck(value, max)
     #print(sensor[4],sensor[3],sensor[5])
-
+"""
 def orientation(sensor,height,orientation):
 
     if orientation == Orientation.left:
-        vertical(sensor,Directions.leftTurn,height)
+        #vertical(sensor,Directions.leftTurn,height)
         moveRight(sensor,height)
     elif orientation == Orientation.right:
-        vertical(sensor, Directions.rightTurn, height)
+        #vertical(sensor, Directions.rightTurn, height)
         moveLeft(sensor,height)
     elif orientation == Orientation.top:
-        horizontal(sensor,Directions.forward,height)
+        #horizontal(sensor,Directions.forward,height)
         moveUp(sensor,height)
     elif orientation == Orientation.bottom:
-        horizontal(sensor,Directions.forward,height)
+        #horizontal(sensor,Directions.forward,height)
         moveDown(sensor,height)
-
+"""
 def stupidLineFollower(sensor,height,values):
 
     #print(sensor,height,values)
-    if values[0] == 0 and values[1] == 0 and values[2] == 1:
+    if ((values[1] == 0 and values[2] == 1) or (values[1] == 1 and values[2] == 1)) and (Orientation.top or Orientation.bottom):
         orientation(sensor,height,Orientation.left)
-    elif values[0] == 1 and values[1] == 0 and values[2] == 0:
+    elif ((values[0] == 1 and values[1] == 0) or (values[0] == 1 and values[1] == 1))and (Orientation.top or Orientation.bottom):
         orientation(sensor, height, Orientation.right)
     else:
-        orientation(sensor, height, Orientation.bottom)
+        print("NOPE")
+        pass
+        #orientation(sensor, height, Orientation.bottom)
+
+#converts movement in proper orientation
+def orientationCheck(orientation, direction):
+
+    if direction == Directions.forward:
+      return orientation
+
+    elif orientation == Orientation.left:
+        if direction == Directions.leftTurn:
+            return Orientation.bottom
+        elif direction == Directions.rightTurn:
+            return Orientation.top
+
+    elif orientation == Orientation.top:
+        if direction == Directions.leftTurn:
+            return Orientation.left
+        elif direction == Directions.rightTurn:
+            return Orientation.right
+
+    elif orientation == Orientation.right:
+        if direction == Directions.leftTurn:
+            return Orientation.top
+        elif direction == Directions.rightTurn:
+            return Orientation.bottom
+
+    elif orientation == Orientation.bottom:
+        if direction == Directions.leftTurn:
+            return Orientation.right
+        elif direction == Directions.rightTurn:
+            return Orientation.left
+
+
+#does the proper movement for given orientation
+def moveManagement(sensor,height,direction):
+    global currentOrientation
+    getOrientation = orientationCheck(currentOrientation,direction)
+    print(currentOrientation,direction)
+    if getOrientation == Orientation.left:
+        moveLeft(sensor, height,direction)
+    elif getOrientation == Orientation.right:
+        moveRight(sensor, height,direction)
+    elif getOrientation == Orientation.top:
+        moveUp(sensor, height,direction)
+    elif getOrientation == Orientation.bottom:
+        moveDown(sensor, height,direction)
+
+    currentOrientation = getOrientation
+
 
 if __name__ == "__main__":
     master = Tk()
@@ -144,6 +198,8 @@ if __name__ == "__main__":
             else:
                 values[width*x+y] = 0
 
+    counter = 0
+    test = [Directions.rightTurn]
     while(1):
         w.delete("all")
         size = 10
@@ -163,18 +219,21 @@ if __name__ == "__main__":
                 else:
                     w.create_rectangle(x1, y1, x2, y2, fill="white", outline="white")
 
-        #orientation(sensor,height,Orientation.bottom)
+
+        moveManagement(sensor, height, test[counter])
+        if counter < len(test)-1:
+            counter += 1
+
+        #print(counter)
+        #print(counter)
         for x in range(3):
             x1 = sensor[x] * (gap + size) + margin
             x2 = x1 + size
             y1 = sensor[x+3] * (gap + size) + margin
             y2 = y1 + size
-            #print("current",sensor[2*x+1],sensor[x*2])
             w.create_rectangle(x1, y1, x2, y2, fill="", outline="red")
-        #print(sensor)
-        stupidLineFollower(sensor,height,[values[width*sensor[0]+sensor[3]], values[width*sensor[1]+sensor[4]], values[width*sensor[2]+sensor[5]]])
-        #vertical(sensor,Directions.leftTurn,height)
+
         w.pack()
         master.update_idletasks()
         master.update()
-        time.sleep(0.5)
+        time.sleep(1)
