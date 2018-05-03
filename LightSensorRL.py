@@ -1,12 +1,7 @@
 from tkinter import *
 from PIL import Image
 import time
-import copy
 from enum import Enum
-
-im = Image.open("TestBild.png")
-width = im.size[0]
-height = im.size[1]
 
 class Directions(Enum):
     leftTurn = -1
@@ -19,7 +14,7 @@ class Orientation(Enum):
     right = 2
     bottom = 3
 
-currentOrientation = Orientation.left
+currentOrientation = Orientation.bottom
 #LIGHT SENSOR x1,x2,x3,y1,y2,y3
 sensor = [2,3,4,15,15,15]
 
@@ -31,23 +26,22 @@ def borderCheck(value,max):
     else:
         return value
 
-
-def moveRight(sensor,max,direction):
+def moveRight(sensor,max):
     for i in range(3):
         value = sensor[i]
         sensor[i] = borderCheck(value+1,max)
 
-def moveLeft(sensor,max,direction):
+def moveLeft(sensor,max):
     for i in range(3):
         value = sensor[i]
         sensor[i] = borderCheck(value - 1, max)
 
-def moveDown(sensor,max,direction):
+def moveDown(sensor,max):
     for i in range(3):
         value = sensor[i+3]
         sensor[i+3] = borderCheck(value + 1, max)
 
-def moveUp(sensor,max,direction):
+def moveUp(sensor,max):
     for i in range(3):
         value = sensor[i+3]
         sensor[i+3] = borderCheck(value - 1, max)
@@ -105,15 +99,15 @@ def horizontal(sensor,direction,max):
 
 def stupidLineFollower(sensor,height,values):
 
-    #print(sensor,height,values)
-    if ((values[1] == 0 and values[2] == 1) or (values[1] == 1 and values[2] == 1)) and (Orientation.top or Orientation.bottom):
-        orientation(sensor,height,Orientation.left)
-    elif ((values[0] == 1 and values[1] == 0) or (values[0] == 1 and values[1] == 1))and (Orientation.top or Orientation.bottom):
-        orientation(sensor, height, Orientation.right)
+    if values[0] == 1 and values[1] == 0 and values[2] == 0:
+        moveManagement(sensor,height,Directions.leftTurn)
+        moveManagement(sensor, height, Directions.forward)
+    elif values[0] == 0 and values[1] == 0 and values[2] == 1:
+        moveManagement(sensor,height,Directions.rightTurn)
+        moveManagement(sensor, height, Directions.forward)
+    #elif values[1] == 1 or (values[0] == 0 and values[1] == 0 and values[2] == 0):
     else:
-        print("NOPE")
-        pass
-        #orientation(sensor, height, Orientation.bottom)
+        moveManagement(sensor,height,Directions.forward)
 
 #converts movement in proper orientation
 def orientationCheck(orientation, direction):
@@ -145,31 +139,28 @@ def orientationCheck(orientation, direction):
         elif direction == Directions.rightTurn:
             return Orientation.left
 
-
 #does the proper movement for given orientation
 def moveManagement(sensor,height,direction):
     global currentOrientation
     getOrientation = orientationCheck(currentOrientation,direction)
-    print(currentOrientation,direction)
+    #print(currentOrientation,direction)
     if direction == Directions.forward:
 
         if getOrientation == Orientation.left:
-            moveLeft(sensor, height,direction)
+            moveLeft(sensor, height)
         elif getOrientation == Orientation.right:
-            moveRight(sensor, height,direction)
+            moveRight(sensor, height)
         elif getOrientation == Orientation.top:
-            moveUp(sensor, height,direction)
+            moveUp(sensor, height)
         elif getOrientation == Orientation.bottom:
-            moveDown(sensor, height,direction)
+            moveDown(sensor, height)
 
     else:
 
         if getOrientation == Orientation.left or getOrientation == Orientation.right:
-            print("A")
             vertical(sensor,direction,height)
         elif getOrientation == Orientation.top or getOrientation == Orientation.bottom:
             horizontal(sensor,direction,height)
-            print("B")
 
     currentOrientation = getOrientation
 
@@ -177,9 +168,9 @@ def moveManagement(sensor,height,direction):
 if __name__ == "__main__":
     master = Tk()
     w = Canvas(master, width=350, height=350)
-    #im = Image.open("TestBild.png")
-    #width = im.size[0]
-    #height = im.size[1]
+    im = Image.open("TestBild2.png")
+    width = im.size[0]
+    height = im.size[1]
     bw_im = im.convert('L')
     size = 10
     gap = 2
@@ -187,13 +178,14 @@ if __name__ == "__main__":
     values = [None]*(width*height)
     for x in range(width):
         for y in range(height):
-            if (bw_im.getpixel((x, y)) < 128):
+            if (bw_im.getpixel((x, y)) < 255):
                 values[width*x+y] = 1
             else:
                 values[width*x+y] = 0
 
     counter = 0
-    test = [Directions.forward, Directions.rightTurn, Directions.forward, Directions.rightTurn, Directions.forward, Directions.rightTurn, Directions.forward, Directions.rightTurn]
+    #test = [Directions.forward, Directions.rightTurn, Directions.forward, Directions.rightTurn, Directions.forward, Directions.rightTurn, Directions.forward, Directions.rightTurn]
+    #test =[Directions.forward,Directions.leftTurn]
     while(1):
         w.delete("all")
         size = 10
@@ -213,12 +205,14 @@ if __name__ == "__main__":
                 else:
                     w.create_rectangle(x1, y1, x2, y2, fill="white", outline="white")
 
-
-        moveManagement(sensor, height, test[counter])
-        if counter < len(test)-1:
-            counter += 1
-        else:
-            counter = 0
+        colors = [values[width*sensor[0]+sensor[3]],values[width*sensor[1]+sensor[4]],values[width*sensor[2]+sensor[5]]]
+        #print(colors)
+        stupidLineFollower(sensor,height,colors)
+        #moveManagement(sensor, height, test[counter])
+        #if counter < len(test)-1:
+        #    counter += 1
+        #else:
+        #    counter = 0
         #print(counter)
         #print(counter)
         for x in range(3):
@@ -231,4 +225,4 @@ if __name__ == "__main__":
         w.pack()
         master.update_idletasks()
         master.update()
-        time.sleep(0.2)
+        time.sleep(0.5)
