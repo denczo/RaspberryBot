@@ -2,6 +2,8 @@ from tkinter import *
 from PIL import Image
 import time
 from enum import Enum
+import random
+import numpy
 
 class Directions(Enum):
     leftTurn = -1
@@ -14,9 +16,94 @@ class Orientation(Enum):
     right = 2
     bottom = 3
 
+#sensor has 3 inputs
+sensorStates = ['000','001','010','011','100','101','110','111']
+Qsa = [0.0]*len(sensorStates)*3 #3 = amount of possible movements
+#startOrientation
 currentOrientation = Orientation.bottom
 #LIGHT SENSOR x1,x2,x3,y1,y2,y3
 sensor = [2,3,4,15,15,15]
+#sensor = [1,2,3,15,15,15]
+
+learningRate = 0.6
+discountRate = 0.4
+#oldSensorStateIndex = 0
+prevStateIndex = 0
+maxActionIndex = 0
+
+def getActionIndex(direction):
+
+    if direction == Directions.leftTurn:
+        return 0
+    elif direction == Directions.forward:
+        return 1
+    elif direction == Directions.rightTurn:
+        return 2
+
+def getStateIndex(sensorValues,sensorStates):
+    binaryValue = str(sensorValues[0]) + str(sensorValues[1]) + str(sensorValues[2])
+    index = 0
+    for i in range(len(sensorStates)):
+        if sensorStates[i] == binaryValue:
+            index = i
+
+
+    return index
+
+def checkReward(sensorValues, sensorStates):
+    binaryValue = str(sensorValues[0]) + str(sensorValues[1]) + str(sensorValues[2])
+    if binaryValue == '000':
+        return -1
+    elif binaryValue == '010':
+        return 100
+    else:
+        return 0
+
+def getMaxAction(Qsa, stateIndex, countStates):
+    found = False
+    oldQsa = 0
+    oldMaxAction = 0
+    for i in range(3):
+        currentQsa = Qsa[countStates*i+stateIndex]
+        print(Qsa)
+        if currentQsa > oldQsa:
+            oldMaxAction = i
+            found = True
+
+    if not(found):
+        return random.randint(0,3)
+    else:
+        return oldMaxAction
+
+def updateQs(sensor, sensorValues, sensorStates):
+    global  prevStateIndex, maxActionIndex
+    #actionIndex = getActionIndex(direction)
+    stateIndex = getStateIndex(sensorValues,sensorStates)
+    prevQsa = Qsa[len(sensorStates)-1 * maxActionIndex + prevStateIndex]
+    reward = checkReward(sensorValues,sensorStates)
+    oldActionIndex = maxActionIndex
+    maxActionIndex = getMaxAction(Qsa,stateIndex,len(sensorStates)-1)
+    #print(maxActionIndex)
+    currentQsa = Qsa[len(sensorStates)-1 * maxActionIndex + stateIndex]
+    Qsa[len(sensorStates)-1 * oldActionIndex + prevStateIndex] = (1 - learningRate) * prevQsa + learningRate*(reward+discountRate*currentQsa)
+    #print(maxActionIndex,stateIndex)
+    updateMovement(maxActionIndex,sensor,height)
+
+def updateMovement(maxActionIndex, sensor, height):
+    direction = 0
+    if maxActionIndex == 0:
+        direction = Directions.leftTurn
+        moveManagement(sensor, height, direction)
+        moveManagement(sensor, height, Directions.forward)
+    elif maxActionIndex == 1:
+        direction = Directions.forward
+        moveManagement(sensor, height, direction)
+    elif maxActionIndex == 2:
+        direction = Directions.rightTurn
+        moveManagement(sensor, height, direction)
+        moveManagement(sensor, height, Directions.forward)
+
+
 
 def borderCheck(value,max):
     if value > max-1:
@@ -99,13 +186,17 @@ def horizontal(sensor,direction,max):
 
 def stupidLineFollower(sensor,height,values):
 
-    if values[0] == 1 and values[1] == 0 and values[2] == 0:
+    #print(values)
+    if values[0] == 1 and (values[1] == 0 or values[1] == 1) and values[2] == 0:
         moveManagement(sensor,height,Directions.leftTurn)
         moveManagement(sensor, height, Directions.forward)
-    elif values[0] == 0 and values[1] == 0 and values[2] == 1:
+    elif values[0] == 0 and (values[1] == 0 or values[1] == 1) and values[2] == 1:
         moveManagement(sensor,height,Directions.rightTurn)
         moveManagement(sensor, height, Directions.forward)
-    #elif values[1] == 1 or (values[0] == 0 and values[1] == 0 and values[2] == 0):
+    #elif values[0] == 1 and values[1] == 1 and values[2] == 1:
+        #choice = random.choice([Directions.rightTurn,Directions.leftTurn])
+        #moveManagement(sensor, height, choice)
+        #moveManagement(sensor, height, Directions.forward)
     else:
         moveManagement(sensor,height,Directions.forward)
 
@@ -123,9 +214,9 @@ def orientationCheck(orientation, direction):
 
     elif orientation == Orientation.top:
         if direction == Directions.leftTurn:
-            return Orientation.left
-        elif direction == Directions.rightTurn:
             return Orientation.right
+        elif direction == Directions.rightTurn:
+            return Orientation.left
 
     elif orientation == Orientation.right:
         if direction == Directions.leftTurn:
@@ -135,9 +226,9 @@ def orientationCheck(orientation, direction):
 
     elif orientation == Orientation.bottom:
         if direction == Directions.leftTurn:
-            return Orientation.right
-        elif direction == Directions.rightTurn:
             return Orientation.left
+        elif direction == Directions.rightTurn:
+            return Orientation.right
 
 #does the proper movement for given orientation
 def moveManagement(sensor,height,direction):
@@ -151,9 +242,9 @@ def moveManagement(sensor,height,direction):
         elif getOrientation == Orientation.right:
             moveRight(sensor, height)
         elif getOrientation == Orientation.top:
-            moveUp(sensor, height)
-        elif getOrientation == Orientation.bottom:
             moveDown(sensor, height)
+        elif getOrientation == Orientation.bottom:
+            moveUp(sensor, height)
 
     else:
 
@@ -168,7 +259,7 @@ def moveManagement(sensor,height,direction):
 if __name__ == "__main__":
     master = Tk()
     w = Canvas(master, width=350, height=350)
-    im = Image.open("TestBild2.png")
+    im = Image.open("TestBild3.png")
     width = im.size[0]
     height = im.size[1]
     bw_im = im.convert('L')
@@ -183,9 +274,7 @@ if __name__ == "__main__":
             else:
                 values[width*x+y] = 0
 
-    counter = 0
-    #test = [Directions.forward, Directions.rightTurn, Directions.forward, Directions.rightTurn, Directions.forward, Directions.rightTurn, Directions.forward, Directions.rightTurn]
-    #test =[Directions.forward,Directions.leftTurn]
+
     while(1):
         w.delete("all")
         size = 10
@@ -206,15 +295,9 @@ if __name__ == "__main__":
                     w.create_rectangle(x1, y1, x2, y2, fill="white", outline="white")
 
         colors = [values[width*sensor[0]+sensor[3]],values[width*sensor[1]+sensor[4]],values[width*sensor[2]+sensor[5]]]
-        #print(colors)
-        stupidLineFollower(sensor,height,colors)
-        #moveManagement(sensor, height, test[counter])
-        #if counter < len(test)-1:
-        #    counter += 1
-        #else:
-        #    counter = 0
-        #print(counter)
-        #print(counter)
+        updateQs(sensor,colors,sensorStates)
+        #stupidLineFollower(sensor,height,colors)
+
         for x in range(3):
             x1 = sensor[x] * (gap + size) + margin
             x2 = x1 + size
@@ -225,4 +308,4 @@ if __name__ == "__main__":
         w.pack()
         master.update_idletasks()
         master.update()
-        time.sleep(0.5)
+        time.sleep(0.01)
