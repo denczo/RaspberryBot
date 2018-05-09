@@ -25,8 +25,8 @@ currentOrientation = Orientation.bottom
 sensor = [2,3,4,15,15,15]
 #sensor = [1,2,3,15,15,15]
 
-learningRate = 0.1
-discountRate = 0.9
+learningRate = 0.2
+discountRate = 0.7
 #oldSensorStateIndex = 0
 prevStateIndex = 0
 maxActionIndex = 0
@@ -73,8 +73,8 @@ def getMaxAction(Qsa, stateIndex, countStates):
     #epsilon greedy
     epsilon = random.randint(0,6)/10
 
-    if not(found) or epsilon >= 0.5:
-    #if not(found):
+    #if not(found) or epsilon >= 0.6:
+    if not(found):
         return random.randint(0,2)
     else:
         return oldMaxAction
@@ -109,7 +109,6 @@ def updateMovement(maxActionIndex, sensor, height):
         direction = Directions.rightTurn
         moveManagement(sensor, height, direction)
         moveManagement(sensor, height, Directions.forward)
-
 
 
 def borderCheck(value,max):
@@ -266,7 +265,7 @@ def moveManagement(sensor,height,direction):
 if __name__ == "__main__":
     master = Tk()
     w = Canvas(master, width=350, height=350)
-    im = Image.open("TestBild4.png")
+    im = Image.open("TestBild5.png")
     width = im.size[0]
     height = im.size[1]
     bw_im = im.convert('L')
