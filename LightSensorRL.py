@@ -25,8 +25,8 @@ currentOrientation = Orientation.bottom
 sensor = [2,3,4,15,15,15]
 #sensor = [1,2,3,15,15,15]
 
-learningRate = 0.6
-discountRate = 0.4
+learningRate = 0.1
+discountRate = 0.9
 #oldSensorStateIndex = 0
 prevStateIndex = 0
 maxActionIndex = 0
@@ -54,8 +54,8 @@ def checkReward(sensorValues, sensorStates):
     binaryValue = str(sensorValues[0]) + str(sensorValues[1]) + str(sensorValues[2])
     if binaryValue == '000':
         return -1
-    elif binaryValue == '010':
-        return 100
+    elif (binaryValue == '010'):
+        return 10
     else:
         return 0
 
@@ -70,8 +70,12 @@ def getMaxAction(Qsa, stateIndex, countStates):
             oldMaxAction = i
             found = True
 
-    if not(found):
-        return random.randint(0,3)
+    #epsilon greedy
+    epsilon = random.randint(0,6)/10
+
+    if not(found) or epsilon >= 0.5:
+    #if not(found):
+        return random.randint(0,2)
     else:
         return oldMaxAction
 
@@ -79,14 +83,17 @@ def updateQs(sensor, sensorValues, sensorStates):
     global  prevStateIndex, maxActionIndex
     #actionIndex = getActionIndex(direction)
     stateIndex = getStateIndex(sensorValues,sensorStates)
-    prevQsa = Qsa[len(sensorStates)-1 * maxActionIndex + prevStateIndex]
+    prevQsa = Qsa[len(sensorStates) * maxActionIndex + prevStateIndex]
     reward = checkReward(sensorValues,sensorStates)
+
     oldActionIndex = maxActionIndex
-    maxActionIndex = getMaxAction(Qsa,stateIndex,len(sensorStates)-1)
-    #print(maxActionIndex)
-    currentQsa = Qsa[len(sensorStates)-1 * maxActionIndex + stateIndex]
-    Qsa[len(sensorStates)-1 * oldActionIndex + prevStateIndex] = (1 - learningRate) * prevQsa + learningRate*(reward+discountRate*currentQsa)
-    #print(maxActionIndex,stateIndex)
+    maxActionIndex = getMaxAction(Qsa,stateIndex,len(sensorStates))
+    #print("prev QSA (", prevStateIndex, oldActionIndex, ") maxAction",maxActionIndex)
+
+    #print(len(sensorStates)*maxActionIndex+stateIndex)
+    currentQsa = Qsa[len(sensorStates) * maxActionIndex + stateIndex]
+    Qsa[len(sensorStates) * oldActionIndex + prevStateIndex] = (1 - learningRate) * prevQsa + learningRate*(reward+discountRate*currentQsa)
+    prevStateIndex = stateIndex
     updateMovement(maxActionIndex,sensor,height)
 
 def updateMovement(maxActionIndex, sensor, height):
@@ -259,7 +266,7 @@ def moveManagement(sensor,height,direction):
 if __name__ == "__main__":
     master = Tk()
     w = Canvas(master, width=350, height=350)
-    im = Image.open("TestBild3.png")
+    im = Image.open("TestBild4.png")
     width = im.size[0]
     height = im.size[1]
     bw_im = im.convert('L')
