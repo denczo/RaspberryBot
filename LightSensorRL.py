@@ -4,6 +4,7 @@ import time
 from enum import Enum
 import random
 import numpy
+import math
 
 class Directions(Enum):
     leftTurn = -1
@@ -25,11 +26,27 @@ currentOrientation = Orientation.bottom
 sensor = [2,3,4,15,15,15]
 #sensor = [1,2,3,15,15,15]
 
-learningRate = 0.2
+learningRate = 0.4
 discountRate = 0.7
 #oldSensorStateIndex = 0
 prevStateIndex = 0
 maxActionIndex = 0
+tau = 0.2
+delta = 0
+
+
+def softmax(Qsa, stateIndex, countStates, stateQvalue, tau):
+
+    tau = round(tau,6)
+    #print(tau)
+
+    numerator = math.exp(stateQvalue/tau)
+    denumerator = 0
+
+    for i in range(int(len(Qsa)/countStates)):
+        denumerator += math.exp((Qsa[countStates*i+stateIndex])/tau)
+
+    return numerator/denumerator
 
 def getActionIndex(direction):
 
@@ -63,21 +80,42 @@ def getMaxAction(Qsa, stateIndex, countStates):
     found = False
     oldQsa = 0
     oldMaxAction = 0
-    for i in range(3):
-        currentQsa = Qsa[countStates*i+stateIndex]
-        print(Qsa)
-        if currentQsa > oldQsa:
-            oldMaxAction = i
-            found = True
+    #for i in range(3):
+        #currentQsa = Qsa[countStates*i+stateIndex]
+        #print(Qsa)
+        #if currentQsa > oldQsa:
+            #oldMaxAction = i
+            #found = True
+
+    turnLeft = softmax(Qsa, stateIndex, countStates, Qsa[countStates*0+stateIndex],tau)
+    forward = softmax(Qsa, stateIndex, countStates, Qsa[countStates*1+stateIndex],tau)
+    turnRight = softmax(Qsa, stateIndex, countStates, Qsa[countStates*2+stateIndex],tau)
+    #print(turnLeft,forward,turnRight)
+    #print(Qsa)
+
+
+
+
+    if turnLeft-delta > forward and turnLeft-delta > turnRight:
+        return 0
+    elif turnRight-delta > forward and turnRight-delta > turnLeft:
+        return 2
+    elif forward-delta > turnRight and forward-delta > turnLeft:
+        return 1
+    else:
+
+        print("RANDOM",tau)
+        return random.randint(0,2)
 
     #epsilon greedy
-    epsilon = random.randint(0,6)/10
+    #epsilon = random.randint(0,6)/10
 
     #if not(found) or epsilon >= 0.6:
-    if not(found):
-        return random.randint(0,2)
-    else:
-        return oldMaxAction
+    #if not(found):
+        #return random.randint(0,2)
+    #else:
+        #return oldMaxAction
+
 
 def updateQs(sensor, sensorValues, sensorStates):
     global  prevStateIndex, maxActionIndex
@@ -265,7 +303,7 @@ def moveManagement(sensor,height,direction):
 if __name__ == "__main__":
     master = Tk()
     w = Canvas(master, width=350, height=350)
-    im = Image.open("TestBild5.png")
+    im = Image.open("TestBild4.png")
     width = im.size[0]
     height = im.size[1]
     bw_im = im.convert('L')
@@ -282,6 +320,12 @@ if __name__ == "__main__":
 
 
     while(1):
+
+        if tau > 5:
+            tau -= 1
+        elif tau > 0.2:
+            tau -= 0.1
+
         w.delete("all")
         size = 10
         gap = 2
