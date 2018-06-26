@@ -309,7 +309,7 @@ def moveManagement(sensor,height,direction):
 if __name__ == "__main__":
     master = Tk()
     w = Canvas(master, width=350, height=350)
-    im = Image.open("TestBild4.png")
+    im = Image.open("TestBild5.png")
     width = im.size[0]
     height = im.size[1]
     bw_im = im.convert('L')
