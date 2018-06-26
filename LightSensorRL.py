@@ -26,12 +26,12 @@ currentOrientation = Orientation.bottom
 sensor = [2,3,4,15,15,15]
 #sensor = [1,2,3,15,15,15]
 
-learningRate = 0.4
+learningRate = 0.2
 discountRate = 0.7
 #oldSensorStateIndex = 0
 prevStateIndex = 0
 maxActionIndex = 0
-tau = 0.2
+tau = 500
 delta = 0
 
 
@@ -80,22 +80,22 @@ def getMaxAction(Qsa, stateIndex, countStates):
     found = False
     oldQsa = 0
     oldMaxAction = 0
-    #for i in range(3):
-        #currentQsa = Qsa[countStates*i+stateIndex]
+    for i in range(3):
+        currentQsa = Qsa[countStates*i+stateIndex]
         #print(Qsa)
-        #if currentQsa > oldQsa:
-            #oldMaxAction = i
-            #found = True
+        if currentQsa > oldQsa:
 
-    turnLeft = softmax(Qsa, stateIndex, countStates, Qsa[countStates*0+stateIndex],tau)
-    forward = softmax(Qsa, stateIndex, countStates, Qsa[countStates*1+stateIndex],tau)
-    turnRight = softmax(Qsa, stateIndex, countStates, Qsa[countStates*2+stateIndex],tau)
+            oldQsa = currentQsa
+            oldMaxAction = i
+            found = True
+
+    #turnLeft = softmax(Qsa, stateIndex, countStates, Qsa[countStates*0+stateIndex],tau)
+    #forward = softmax(Qsa, stateIndex, countStates, Qsa[countStates*1+stateIndex],tau)
+    #turnRight = softmax(Qsa, stateIndex, countStates, Qsa[countStates*2+stateIndex],tau)
     #print(turnLeft,forward,turnRight)
     #print(Qsa)
 
-
-
-
+    """
     if turnLeft-delta > forward and turnLeft-delta > turnRight:
         return 0
     elif turnRight-delta > forward and turnRight-delta > turnLeft:
@@ -106,15 +106,22 @@ def getMaxAction(Qsa, stateIndex, countStates):
 
         print("RANDOM",tau)
         return random.randint(0,2)
-
+    """
     #epsilon greedy
-    #epsilon = random.randint(0,6)/10
+    epsilon = 0
 
-    #if not(found) or epsilon >= 0.6:
-    #if not(found):
-        #return random.randint(0,2)
-    #else:
-        #return oldMaxAction
+    if tau > 0.2:
+        epsilon = random.randint(0,100)
+    else:
+        epsilon = 100
+
+    #print(epsilon)
+    #if not(found) or epsilon <= 5:
+    if not(found):
+        #print(epsilon)
+        return random.randint(0,2)
+    else:
+        return oldMaxAction
 
 
 def updateQs(sensor, sensorValues, sensorStates):
@@ -147,7 +154,6 @@ def updateMovement(maxActionIndex, sensor, height):
         direction = Directions.rightTurn
         moveManagement(sensor, height, direction)
         moveManagement(sensor, height, Directions.forward)
-
 
 def borderCheck(value,max):
     if value > max-1:
@@ -321,10 +327,8 @@ if __name__ == "__main__":
 
     while(1):
 
-        if tau > 5:
+        if tau > 1:
             tau -= 1
-        elif tau > 0.2:
-            tau -= 0.1
 
         w.delete("all")
         size = 10
