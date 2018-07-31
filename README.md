@@ -1,8 +1,8 @@
 # Simulation Linefollower Q-Learning
 
-[![simulation](http://img.youtube.com/vi/w_dUo_K5RM4/0.jpg)(https://www.youtube.com/watch?v=w_dUo_K5RM4)
+[![simulation](http://img.youtube.com/vi/w_dUo_K5RM4/0.jpg)](https://www.youtube.com/watch?v=w_dUo_K5RM4)
 
-# Robot (Linefollower) based on a raspberry pi with Q-Learning
+# Linefollower based on a raspberry pi with Q-Learning
 
 Learning Process:
 
