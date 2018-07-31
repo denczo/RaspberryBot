@@ -13,4 +13,14 @@ Neural Net in python for recognising numbers 0-9
 
 # Robot based on a raspberry pi with Q-Learning
 
-[![undefined](https://img.youtube.com/vi/dR7oVC3HARc/0.jpg)](https://www.youtube.com/watch?v=dR7oVC3HARc)
+Learning Process:
+
+[![qlearning#1](http://img.youtube.com/vi/k1Fz0HDTMH0/0.jpg)](https://www.youtube.com/watch?v=k1Fz0HDTMH0)
+
+Already learned, small test course:
+
+[![qlearning#2](http://img.youtube.com/vi/-Xjh3J9O2Fg/0.jpg)](https://www.youtube.com/watch?v=-Xjh3J9O2Fg)
+
+Already learned, big test course:
+
+[![qlearning#3](http://img.youtube.com/vi/gvqk98M4y_8/0.jpg)](https://www.youtube.com/watch?v=gvqk98M4y_8)
